@@ -1,0 +1,36 @@
+{
+  "summary": "Machine learning is a subfield of artificial intelligence focused on building systems that learn from data.",
+  "quiz": [
+    {
+      "text": "What is machine learning?",
+      "options": [
+        "A) A way to program robots only",
+        "B) A field focused on data-driven learning algorithms",
+        "C) The same as traditional programming",
+        "D) An operating system"
+      ],
+      "correct_answer": "B",
+      "explanation": "Machine learning builds algorithms that can learn from and make predictions on data.",
+      "difficulty_level": "easy"
+    },
+    {
+      "text": "Which algorithm is NOT commonly used in machine learning?",
+      "options": [
+        "A) Decision Trees",
+        "B) Logistic Regression",
+        "C) Bubble Sort",
+        "D) K-Means Clustering"
+      ],
+      "correct_answer": "C",
+      "explanation": "Bubble Sort is a sorting algorithm, not a learning model.",
+      "difficulty_level": "medium"
+    }
+  ],
+  "key_entities": ["Machine Learning", "Artificial Intelligence", "Neural Networks"],
+  "sections": [
+    "Overview",
+    "Types of Machine Learning",
+    "Applications"
+  ],
+  "related_topics": ["Deep Learning", "Data Science"]
+}
