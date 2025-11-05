@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# ai-quiz-generator
+>>>>>>> 476284b78047cee85dab86104affc56c4bfd5828
 AI Wikipedia Quiz Generator
 Overview
 This project is a full-stack application that scrapes any Wikipedia article and uses an LLM (Google Gemini via LangChain) to generate high-quality quiz questions including answers, explanations, difficulty ratings, and related topics. The app includes both a FastAPI backend and a React frontend, with persistent quiz history and sample data for demonstration.
@@ -88,4 +92,8 @@ Frontend can't connect: Check backend runs on --host 0.0.0.0 and API URLs are co
 Quiz not generated: Double-check API keys and environment variables. Review backend logs for errors.
 
 Contact
+<<<<<<< HEAD
 For help or questions, contact: [kokkularamana225@gmail.com]
+=======
+For help or questions, contact: [kokkularamana225@gmail.com]
+>>>>>>> 476284b78047cee85dab86104affc56c4bfd5828
