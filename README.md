@@ -20,7 +20,7 @@ cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-# Add API keys to .env, e.g. GEMINI_API_KEY
+--ADD google API KEY in backend/.env
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 Frontend:
