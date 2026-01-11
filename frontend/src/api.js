@@ -1,4 +1,4 @@
-const API_BASE = "https://reimagined-bassoon-v6q47rq7qvvp2w7pp-8000.app.github.dev";
+const API_BASE = "https://ai-quiz-generator-c44j.onrender.com";
 
 export async function generateQuiz(url) {
   const res = await fetch(`${API_BASE}/generate`, {

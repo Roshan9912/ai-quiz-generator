@@ -33,51 +33,43 @@ def get_db():
         db.close()
 
 @app.post("/generate")
-def generate_quiz_api(payload: dict, db: Session = Depends(get_db)):
-    url = payload.get("url")
+def generate_quiz_api(request: QuizRequest, db: Session = Depends(get_db)):
 
-    if not url or "wikipedia.org/wiki/" not in url:
-        raise HTTPException(status_code=400, detail="Invalid Wikipedia URL")
+    # 1️⃣ CHECK CACHE FIRST (MOST IMPORTANT)
+    existing = get_quiz_by_url(db, request.url)
+    if existing:
+        return existing  # 🔥 instant response, no LLM call
 
-    cached = db.query(Quiz).filter(Quiz.url == url).first()
-    if cached:
-        return cached
+    # 2️⃣ SCRAPE
+    scraped = scrape_wikipedia(request.url)
 
+    # 3️⃣ LIMIT CONTENT (VERY IMPORTANT)
+    MAX_CHARS = 3000
+    content = scraped["content"][:MAX_CHARS]
+
+    # 4️⃣ CALL LLM SAFELY
     try:
-        scraped = scrape_wikipedia(url)
-        MAX_CHARS = 6000  # safe for free tier
+        quiz = generate_quiz(content)
+    except Exception:
+        raise HTTPException(
+            status_code=429,
+            detail="LLM rate limit reached. Cached quizzes still work."
+        )
 
-        content = scraped["content"][:MAX_CHARS]
-
-        quiz_data = generate_quiz(content)
-        topics = generate_related_topics(content)
-
-    except Exception as e:
-        error_msg = str(e)
-        if "rate_limit" in error_msg or "429" in error_msg:
-            raise HTTPException(
-                status_code=429,
-                detail="LLM rate limit reached. Please try again later or use cached quizzes."
-            )
-        raise HTTPException(status_code=500, detail=error_msg)
-
-
-    quiz = Quiz(
-        url=url,
+    # 5️⃣ SAVE TO DB
+    quiz_obj = create_quiz(
+        db=db,
+        url=request.url,
         title=scraped["title"],
         summary=scraped["summary"],
         sections=scraped["sections"],
-        key_entities=scraped["key_entities"],
-        quiz=quiz_data,
-        related_topics=topics,
-        raw_html=scraped["raw_html"]
+        key_entities=scraped.get("key_entities", {}),
+        quiz=quiz,
+        raw_html=scraped["raw_html"],
     )
 
-    db.add(quiz)
-    db.commit()
-    db.refresh(quiz)
+    return quiz_obj
 
-    return quiz
 
 
 @app.get("/history")
