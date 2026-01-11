@@ -1,4 +1,4 @@
-#!/workspaces/ai-quiz-generator/backend/venv/bin/python3
+#!/workspaces/ai-quiz-generator/backend/venv/bin/python
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function

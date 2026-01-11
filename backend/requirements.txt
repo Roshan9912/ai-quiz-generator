@@ -1,11 +1,11 @@
 fastapi
-uvicorn[standard]
-pydantic
+uvicorn
 sqlalchemy
-psycopg2-binary       # use for PostgreSQL, for MySQL: mysqlclient
-beautifulsoup4
-requests
-langchain-core
-langchain-community
-langchain-google-genai
+psycopg2-binary
 python-dotenv
+requests
+beautifulsoup4
+langchain
+langchain-openai
+openai
+pydantic

@@ -1,96 +1,139 @@
+# AI Wiki Quiz Generator
 
-AI Wikipedia Quiz Generator
+An end-to-end GenAI application that automatically generates quizzes from Wikipedia articles using a Large Language Model (LLM).
 
-Overview:
-This project is a full-stack application that scrapes any Wikipedia article and uses an LLM (Google Gemini via LangChain) to generate high-quality quiz questions including answers, explanations, difficulty ratings, and related topics. The app includes both a FastAPI backend and a React frontend, with persistent quiz history and sample data for demonstration.
+This project was built as part of an internship/assessment to demonstrate:
+- Web scraping
+- LLM integration via LangChain
+- Backend API development using FastAPI
+- Frontend UI using React
+- Database persistence
+- Error handling and deployment readiness
 
-Technologies Used
-Backend: FastAPI (Python), SQLAlchemy ORM, BeautifulSoup (scraping), LangChain (LLM + Gemini API)
+---
 
-Frontend: React + Vite, Tailwind CSS
+## 🚀 Features
 
-Database: SQLite (local) or MySQL/PostgreSQL (production)
+### Tab 1 – Generate Quiz
+- Accepts a Wikipedia article URL
+- Scrapes article content using BeautifulSoup (HTML only)
+- Generates 5–10 MCQs using an LLM
+- Each question includes:
+  - Question text
+  - Four options
+  - Correct answer
+  - Difficulty level (easy / medium / hard)
+  - Short explanation
+- Extracts article sections
+- Stores raw HTML, quiz data, and metadata in database
+- Displays results in a clean, card-based UI
 
-Other: Codespaces, CORS middleware, RESTful APIs
+### Tab 2 – Past Quizzes (History)
+- Displays all previously processed Wikipedia URLs
+- Fetches data from database
+- “Details” modal reuses quiz layout from Tab 1
 
-Setup & Run Instructions
-Backend:
+---
 
-cd backend
-python3 -m venv venv
-source venv/bin/activate
+## 🧠 Tech Stack
+
+### Backend
+- **Framework:** FastAPI (Python)
+- **LLM:** OpenAI API via LangChain
+- **Scraping:** BeautifulSoup (no Wikipedia API)
+- **Database:** SQLite (PostgreSQL supported for production)
+- **ORM:** SQLAlchemy
+
+### Frontend
+- **Framework:** React
+- **UI:** Minimal custom UI (cards, tabs, modal)
+- **API Calls:** Fetch API
+
+---
+
+## 🗂️ Project Structure
+
+ai-wiki-quiz-generator/
+│
+├── backend/
+│ ├── app/
+│ │ ├── main.py
+│ │ ├── scraper.py
+│ │ ├── llm_quiz_generator.py
+│ │ ├── database.py
+│ │ ├── models.py
+│ │ └── schemas.py
+│ ├── requirements.txt
+│ └── .env
+│
+├── frontend/
+│ ├── src/
+│ │ ├── api.js
+│ │ ├── App.js
+│ │ └── components/
+│ └── package.json
+│
+├── sample_data/
+│ ├── urls.txt
+│ ├── alan_turing.json
+│ ├── machine_learning.json
+│ └── python.json
+│
+└── README.md
+
+## ⚙️ Backend Setup (Local)
+
+Build Command :
 pip install -r requirements.txt
---ADD google API KEY in backend/.env
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-Frontend:
+```bash```
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 
+
+## ⚙️ Frontend Setup (Local)
+
+```bash```
 cd frontend
 npm install
-npm run dev
-Note: In Codespaces, use the provided preview URLs for both frontend (5173) and backend (8000).
-Backend must be running with proper CORS config for frontend to connect.
+npm start
 
-Application Features:
-Input: User enters any valid Wikipedia article URL
-Ex:
-https://en.wikipedia.org/wiki/Alan_Turing
 
-https://en.wikipedia.org/wiki/Python_(programming_language)
+🔌 API Endpoints
+POST /generate
 
-https://en.wikipedia.org/wiki/Machine_learning
+Generates a quiz from a Wikipedia URL.
 
-Quiz Generator: Scrapes article, sends content to LLM, receives quiz JSON
-
-Quiz Format: Each question has 4 options, a correct answer, explanation, difficulty level, and related topics
-
-History: Quiz history saved and viewable, with modal for quiz details and full explanations
-
-Sample Data: See sample_data/
-
-Error Handling: Includes validation for Wikipedia URLs and shows frontend/backend errors
-
-LangChain Prompt Template
-Paste your prompt here (example):
-
-You are an AI tutor. Given the Wikipedia article "{title}", create 5 multiple-choice questions. For each, provide 4 answer options, identify the correct answer, offer a one-sentence explanation, and indicate the question's difficulty (easy/medium/hard). Return as valid JSON:
-
+```json```
 {
-  "summary": "...",
-  "quiz": [
-    {
-      "text": "...",
-      "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
-      "correct_answer": "B",
-      "explanation": "...",
-      "difficulty_level": "easy"
-    }
-    // more questions ...
-  ],
-  "key_entities": [...],
-  "sections": [...],
-  "related_topics": [...]
+  "url": "https://en.wikipedia.org/wiki/Alan_Turing"
 }
 
+GET /history
 
-Sample Data:
-See the sample_data/ folder for example Wikipedia articles and their generated quiz JSON:
-
-alan_turing.json
-
-python.json
-
-machine_learning.json
+Returns all previously generated quizzes.
 
 
-Troubleshooting:
-CORS errors: Ensure backend CORS settings match your frontend URL exactly and restart backend after changes.
+🧪 Sample Data
 
-Frontend can't connect: Check backend runs on --host 0.0.0.0 and API URLs are correct.
+The sample_data/ folder contains:
 
-Quiz not generated: Double-check API keys and environment variables. Review backend logs for errors.
+urls.txt – Tested Wikipedia URLs
 
-Contact:
-For help or questions, contact: [kokkularamana225@gmail.com]
+JSON files – Raw API outputs for:
+
+Alan Turing
+
+Machine Learning
+
+Python (programming language)
+
+This demonstrates robustness and variety in testing.
 
 
+Environmental variables:
+
+```.env```
+OPENAI_API_KEY=your_openai_key (openai platform)
+DATABASE_URL=sqlite:///./wikiquiz.db
