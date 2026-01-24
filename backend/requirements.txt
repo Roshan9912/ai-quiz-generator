@@ -1,11 +1,11 @@
 fastapi
 uvicorn
-sqlalchemy
-psycopg2-binary
 python-dotenv
 requests
 beautifulsoup4
+sqlalchemy
+psycopg2-binary
 langchain
-langchain-openai
-openai
+langchain-google-genai
+google-generativeai
 pydantic

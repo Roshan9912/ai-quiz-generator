@@ -1,16 +1,23 @@
-const API_BASE = "https://ai-quiz-generator-c44j.onrender.com";
+const API_BASE = "http://localhost:8000";
 
-export async function generateQuiz(url) {
-  const res = await fetch(`${API_BASE}/generate`, {
+export async function generateQuiz(wikiUrl) {
+  const response = await fetch(`${API_BASE}/generate`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url: wikiUrl }),
   });
 
-  return res.json();
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text);
+  }
+
+  return response.json();
 }
 
 export async function getHistory() {
-  const res = await fetch(`${API_BASE}/history`);
-  return res.json();
+  const response = await fetch(`${API_BASE}/history`);
+  return response.json();
 }

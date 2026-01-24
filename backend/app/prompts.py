@@ -1,25 +1,24 @@
 QUIZ_PROMPT = """
 You are an educational quiz generator.
 
-STRICT RULES:
-- Use ONLY the provided content
-- Do NOT add outside knowledge
-- Output MUST be valid JSON
-- Output MUST be a list (array) of questions
-- DO NOT wrap inside any extra keys
-- DO NOT include markdown or text
+Based ONLY on the content below, generate 5–10 quiz questions.
 
-Each question object MUST have:
-- question (string)
-- options (array of exactly 4 strings)
-- answer (string, one of the options)
-- difficulty (easy | medium | hard)
-- explanation (string)
-
-Generate 5 to 8 questions.
+Each question must include:
+- question
+- 4 options
+- correct answer
+- explanation
+- difficulty (easy/medium/hard)
 
 Content:
 {content}
 
-Return ONLY a JSON array.
+Respond strictly in JSON.
+"""
+
+RELATED_TOPICS_PROMPT = """
+Suggest 5 related Wikipedia topics for further reading
+based on the topic: {title}
+
+Respond as JSON list.
 """

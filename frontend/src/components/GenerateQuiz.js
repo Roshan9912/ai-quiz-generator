@@ -1,37 +1,54 @@
-import { useState } from "react";
 import { generateQuiz } from "../api";
-import QuizCard from "./QuizCard";
+import { useState } from "react";
 
-export default function GenerateQuiz() {
+function GenerateQuiz() {
   const [url, setUrl] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleGenerate = async () => {
-    setLoading(true);
-    const json = await generateQuiz(url);
-    if (json.detail) {
-  alert(json.detail);
-  setData(json);
-  setLoading(false);
-  return;
-}
-    setData(json);
-    setLoading(false);
+  const submit = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const result = await generateQuiz(url);
+      setData(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
       <input
-        placeholder="Wikipedia URL"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        style={{ width: "60%" }}
+        placeholder="Wikipedia URL"
       />
-      <button onClick={handleGenerate}>Generate</button>
 
-      {loading && <p>Generating quiz...</p>}
-      {data && <QuizCard data={data} />}
+      <button onClick={submit}>
+        {loading ? "Generating..." : "Generate Quiz"}
+      </button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {data && data.quiz && data.quiz.map((q, i) => (
+        <div key={i} className="card">
+          <h4>{q.question}</h4>
+          <ul>
+            {q.options.map((opt, idx) => (
+              <li key={idx}>{opt}</li>
+            ))}
+          </ul>
+          <p><b>Answer:</b> {q.answer}</p>
+          <p><b>Difficulty:</b> {q.difficulty}</p>
+          <p>{q.explanation}</p>
+        </div>
+      ))}
     </div>
   );
 }
+
+export default GenerateQuiz;

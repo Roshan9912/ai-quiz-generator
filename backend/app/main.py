@@ -1,30 +1,31 @@
-from dotenv import load_dotenv
-load_dotenv()   # 🔥 MUST BE FIRST
-
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from .database import SessionLocal, engine
 from .models import Base, Quiz
+from .schemas import QuizRequest
 from .scraper import scrape_wikipedia
-from .llm_quiz_generator import generate_quiz, generate_related_topics
+from .llm_quiz_generator import generate_quiz
 
-
+# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AI Wiki Quiz Generator")
 
-from fastapi.middleware.cors import CORSMiddleware
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # OK for project/demo
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
+# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -32,46 +33,69 @@ def get_db():
     finally:
         db.close()
 
+
 @app.post("/generate")
-def generate_quiz_api(request: QuizRequest, db: Session = Depends(get_db)):
-
-    # 1️⃣ CHECK CACHE FIRST (MOST IMPORTANT)
-    existing = get_quiz_by_url(db, request.url)
-    if existing:
-        return existing  # 🔥 instant response, no LLM call
-
-    # 2️⃣ SCRAPE
-    scraped = scrape_wikipedia(request.url)
-
-    # 3️⃣ LIMIT CONTENT (VERY IMPORTANT)
-    MAX_CHARS = 3000
-    content = scraped["content"][:MAX_CHARS]
-
-    # 4️⃣ CALL LLM SAFELY
+def generate(request: QuizRequest, db: Session = Depends(get_db)):
     try:
-        quiz = generate_quiz(content)
-    except Exception:
-        raise HTTPException(
-            status_code=429,
-            detail="LLM rate limit reached. Cached quizzes still work."
+        # 1. Check if quiz already exists
+        existing = db.query(Quiz).filter(Quiz.url == request.url).first()
+        if existing:
+            return {
+                "id": existing.id,
+                "url": existing.url,
+                "title": existing.title,
+                "summary": existing.summary,
+                "sections": existing.sections,
+                "quiz": existing.quiz,
+                "related_topics": existing.related_topics,
+            }
+
+        # 2. Scrape & generate
+        scraped = scrape_wikipedia(request.url)
+        quiz_data, related = generate_quiz(
+            scraped["clean_text"],
+            scraped["title"]
         )
 
-    # 5️⃣ SAVE TO DB
-    quiz_obj = create_quiz(
-        db=db,
-        url=request.url,
-        title=scraped["title"],
-        summary=scraped["summary"],
-        sections=scraped["sections"],
-        key_entities=scraped.get("key_entities", {}),
-        quiz=quiz,
-        raw_html=scraped["raw_html"],
-    )
+        record = Quiz(
+            url=request.url,
+            title=scraped.get("title", ""),
+            summary=scraped.get("summary", ""),
+            sections=scraped.get("sections", []),
+            quiz=quiz_data,
+            related_topics=related,
+            raw_html=scraped.get("raw_html", "")
+        )
 
-    return quiz_obj
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+
+        return {
+            "id": record.id,
+            "url": record.url,
+            "title": record.title,
+            "summary": record.summary,
+            "sections": record.sections,
+            "quiz": record.quiz,
+            "related_topics": record.related_topics,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 
 @app.get("/history")
-def quiz_history(db: Session = Depends(get_db)):
-    return db.query(Quiz).all()
+def history(db: Session = Depends(get_db)):
+    records = db.query(Quiz).order_by(Quiz.id.desc()).all()
+
+    return [
+        {
+            "id": q.id,
+            "url": q.url,
+            "title": q.title,
+            "created_at": q.created_at
+        }
+        for q in records
+    ]

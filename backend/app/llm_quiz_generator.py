@@ -1,63 +1,38 @@
+import os
 import json
-import re
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import PromptTemplate
+from google import genai
+from dotenv import load_dotenv
 
-llm = ChatOpenAI(
-    model="gpt-4o-mini",
-    temperature=0.3
-)
+load_dotenv()
 
-QUIZ_PROMPT = """
-You are an educational quiz generator.
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-STRICT RULES:
-- Use ONLY the given article text
-- Generate 5–10 MCQs
-- Each question MUST include:
-  - question
-  - options (4)
-  - answer
-  - difficulty (easy|medium|hard)
-  - explanation
+def generate_quiz(title: str, content: str):
+    prompt = f"""
+Generate 8–10 MCQ questions from the content below.
+Return STRICT JSON only.
 
-OUTPUT FORMAT:
-Return ONLY a valid JSON array.
-DO NOT include markdown.
-DO NOT include explanation text.
+{{
+  "quiz": [
+    {{
+      "question": "",
+      "options": ["", "", "", ""],
+      "answer": "",
+      "difficulty": "easy|medium|hard",
+      "explanation": ""
+    }}
+  ],
+  "related_topics": []
+}}
 
-ARTICLE:
+CONTENT:
 {content}
 """
 
-TOPIC_PROMPT = """
-Suggest 5 related Wikipedia topics based on the article.
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
 
-Return ONLY a JSON array of strings.
-
-ARTICLE:
-{content}
-"""
-
-def _safe_json_parse(text: str):
-    """
-    Extract and parse JSON safely from LLM output
-    """
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        # try to extract JSON block
-        match = re.search(r"(\[.*\])", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(1))
-        raise ValueError("LLM returned invalid JSON")
-
-def generate_quiz(article_text: str):
-    prompt = PromptTemplate.from_template(QUIZ_PROMPT)
-    response = llm.invoke(prompt.format(content=article_text))
-    return _safe_json_parse(response.content)
-
-def generate_related_topics(article_text: str):
-    prompt = PromptTemplate.from_template(TOPIC_PROMPT)
-    response = llm.invoke(prompt.format(content=article_text))
-    return _safe_json_parse(response.content)
+    text = response.text.strip().replace("```json", "").replace("```", "")
+    return json.loads(text)

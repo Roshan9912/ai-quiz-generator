@@ -1,139 +1,225 @@
-# AI Wiki Quiz Generator
+🧠 AI Wiki Quiz Generator
 
-An end-to-end GenAI application that automatically generates quizzes from Wikipedia articles using a Large Language Model (LLM).
+DeepKlarity Technologies – Technical Assignment
 
-This project was built as part of an internship/assessment to demonstrate:
-- Web scraping
-- LLM integration via LangChain
-- Backend API development using FastAPI
-- Frontend UI using React
-- Database persistence
-- Error handling and deployment readiness
+📌 Objective
 
----
+The AI Wiki Quiz Generator is a full-stack web application that accepts a Wikipedia article URL and automatically generates a quiz using a Large Language Model (LLM).
 
-## 🚀 Features
+The system:
 
-### Tab 1 – Generate Quiz
-- Accepts a Wikipedia article URL
-- Scrapes article content using BeautifulSoup (HTML only)
-- Generates 5–10 MCQs using an LLM
-- Each question includes:
-  - Question text
-  - Four options
-  - Correct answer
-  - Difficulty level (easy / medium / hard)
-  - Short explanation
-- Extracts article sections
-- Stores raw HTML, quiz data, and metadata in database
-- Displays results in a clean, card-based UI
+Scrapes Wikipedia HTML (no Wikipedia API)
 
-### Tab 2 – Past Quizzes (History)
-- Displays all previously processed Wikipedia URLs
-- Fetches data from database
-- “Details” modal reuses quiz layout from Tab 1
+Uses an LLM (Gemini free tier via LangChain) to generate quizzes
 
----
+Stores results in a PostgreSQL database
 
-## 🧠 Tech Stack
+Displays quizzes and history via a clean React UI
 
-### Backend
-- **Framework:** FastAPI (Python)
-- **LLM:** OpenAI API via LangChain
-- **Scraping:** BeautifulSoup (no Wikipedia API)
-- **Database:** SQLite (PostgreSQL supported for production)
-- **ORM:** SQLAlchemy
+🚀 Live Demo
 
-### Frontend
-- **Framework:** React
-- **UI:** Minimal custom UI (cards, tabs, modal)
-- **API Calls:** Fetch API
+Frontend: 👉 https://your-frontend.vercel.app
 
----
+Backend API: 👉 https://your-backend.onrender.com
 
-## 🗂️ Project Structure
+API Docs: 👉 https://your-backend.onrender.com/docs
 
+Screen Recording: 👉 https://drive.google.com/file/d/your-link/view
+
+🛠 Tech Stack
+Backend
+
+FastAPI (Python)
+
+PostgreSQL
+
+SQLAlchemy ORM
+
+BeautifulSoup (HTML scraping)
+
+LangChain
+
+Google Gemini (free tier)
+
+Uvicorn
+
+Frontend
+
+React
+
+Fetch API
+
+Minimal CSS (card-based layout)
+
+
+Deployment
+
+Backend: Render
+
+Frontend: Vercel
+
+
+🧩 Application Features
+🔹 TAB 1 – Generate Quiz
+
+Input Wikipedia article URL
+
+Scrapes article content
+
+Generates 5–10 quiz questions
+
+Each question includes:
+
+Question
+
+4 options
+
+Correct answer
+
+Explanation
+
+Difficulty level
+
+Suggests related Wikipedia topics
+
+Stores data in PostgreSQL
+
+Returns structured JSON response
+
+Displays quiz in card-based UI
+
+🔹 TAB 2 – Quiz History
+
+Displays all previously processed Wikipedia URLs
+
+Data fetched from PostgreSQL
+
+Clicking Details shows full quiz in modal
+
+Prevents duplicate re-scraping using URL-level caching
+
+🧠 Bonus Features Implemented
+
+✅ URL-level caching (no duplicate scraping)
+✅ Graceful error handling
+✅ CORS-safe frontend-backend communication
+✅ Raw HTML stored in DB
+✅ Fast response for repeated URLs
+
+📂 Project Structure
 ai-wiki-quiz-generator/
 │
 ├── backend/
-│ ├── app/
-│ │ ├── main.py
-│ │ ├── scraper.py
-│ │ ├── llm_quiz_generator.py
-│ │ ├── database.py
-│ │ ├── models.py
-│ │ └── schemas.py
-│ ├── requirements.txt
-│ └── .env
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── scraper.py
+│   │   └── llm_quiz_generator.py
+│   ├── requirements.txt
+│   └── .env
 │
 ├── frontend/
-│ ├── src/
-│ │ ├── api.js
-│ │ ├── App.js
-│ │ └── components/
-│ └── package.json
+│   ├── src/
+│   │   ├── components/
+│   │   ├── api.js
+│   │   └── App.js
+│   └── package.json
 │
 ├── sample_data/
-│ ├── urls.txt
-│ ├── alan_turing.json
-│ ├── machine_learning.json
-│ └── python.json
+│   ├── urls.txt
+│   └── sample_responses.json
 │
 └── README.md
 
-## ⚙️ Backend Setup (Local)
+🔌 API Endpoints
+➤ Generate Quiz
+POST /generate
 
-Build Command :
-pip install -r requirements.txt
+Request Body
+{
+  "url": "https://en.wikipedia.org/wiki/Machine_learning"
+}
 
-```bash```
+Response (Sample)
+{
+  "id": 1,
+  "url": "https://en.wikipedia.org/wiki/Machine_learning",
+  "title": "Machine learning",
+  "summary": "...",
+  "sections": [],
+  "quiz": [...],
+  "related_topics": [...]
+}
+
+➤ Quiz History
+GET /history
+
+
+Returns all stored quizzes from the database.
+
+🧪 Sample Data
+
+Located in /sample_data/
+
+urls.txt – Tested Wikipedia URLs
+
+sample_responses.json – Stored API outputs
+
+🧠 LangChain Prompt Templates
+Quiz Generation Prompt
+You are an expert educator.
+
+Using the following Wikipedia content, generate 5–10 quiz questions.
+Each question must include:
+- Question
+- 4 options
+- Correct answer
+- Difficulty level (easy/medium/hard)
+- Short explanation grounded in the content
+
+Content:
+{article_text}
+
+Related Topics Prompt
+Suggest 8–12 related Wikipedia topics based on the following article content:
+
+{article_text}
+
+⚙️ How to Run Locally
+1️⃣ Backend Setup
 cd backend
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
+
+
+Create .env:
+
+DATABASE_URL=postgresql://user:password@localhost:5432/wikiquiz
+GEMINI_API_KEY=your_api_key
+
+
+Run backend:
+
 uvicorn app.main:app --reload
 
-
-## ⚙️ Frontend Setup (Local)
-
-```bash```
+2️⃣ Frontend Setup
 cd frontend
 npm install
 npm start
 
+🧪 Testing
 
-🔌 API Endpoints
-POST /generate
+Test via Swagger UI: /docs
 
-Generates a quiz from a Wikipedia URL.
+Test frontend via browser
 
-```json```
-{
-  "url": "https://en.wikipedia.org/wiki/Alan_Turing"
-}
-
-GET /history
-
-Returns all previously generated quizzes.
-
-
-🧪 Sample Data
-
-The sample_data/ folder contains:
-
-urls.txt – Tested Wikipedia URLs
-
-JSON files – Raw API outputs for:
-
-Alan Turing
+Verified URLs:
 
 Machine Learning
 
 Python (programming language)
 
-This demonstrates robustness and variety in testing.
-
-
-Environmental variables:
-
-```.env```
-OPENAI_API_KEY=your_openai_key (openai platform)
-DATABASE_URL=sqlite:///./wikiquiz.db
+Artificial Intelligence
