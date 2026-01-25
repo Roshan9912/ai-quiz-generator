@@ -1,23 +1,26 @@
 const API_BASE = "https://ai-quiz-generator-1-6jbj.onrender.com";
 
-export async function generateQuiz(wikiUrl) {
-  const response = await fetch(`${API_BASE}/generate`, {
+export async function generateQuiz(url) {
+  const res = await fetch(`${API_BASE}/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ url: wikiUrl }),
+    body: JSON.stringify({ url }),
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Failed to generate quiz");
   }
 
-  return response.json();
+  return res.json();
 }
 
 export async function getHistory() {
-  const response = await fetch(`${API_BASE}/history`);
-  return response.json();
+  const res = await fetch(`${API_BASE}/history`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch history");
+  }
+  return res.json();
 }

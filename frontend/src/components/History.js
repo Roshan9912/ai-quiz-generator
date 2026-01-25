@@ -1,23 +1,37 @@
 import { useEffect, useState } from "react";
 import { getHistory } from "../api";
 
-export default function History() {
-  const [data, setData] = useState([]);
+function History() {
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    getHistory().then(setData);
+    getHistory().then(setItems).catch(console.error);
   }, []);
 
   return (
-    <table>
-      <tbody>
-        {data.map(q => (
-          <tr key={q.id}>
-            <td>{q.title}</td>
-            <td>{q.url}</td>
+    <div style={{ padding: "20px" }}>
+      <h2>Past Quizzes</h2>
+
+      <table border="1" cellPadding="8">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>URL</th>
+            <th>Title</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.url}</td>
+              <td>{item.title}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
+
+export default History;

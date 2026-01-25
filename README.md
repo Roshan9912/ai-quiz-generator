@@ -18,11 +18,11 @@ Displays quizzes and history via a clean React UI
 
 🚀 Live Demo
 
-Frontend: 👉 https://your-frontend.vercel.app
+Frontend: 👉 https://ai-quiz-generator-ecru.vercel.app
 
-Backend API: 👉 https://your-backend.onrender.com
+Backend API: 👉 https://ai-quiz-generator-1-6jbj.onrender.com
 
-API Docs: 👉 https://your-backend.onrender.com/docs
+API Docs: 👉 https://ai-quiz-generator-1-6jbj.onrender.com/docs
 
 Screen Recording: 👉 https://drive.google.com/file/d/your-link/view
 
