@@ -24,7 +24,7 @@ Backend API: 👉 https://ai-quiz-generator-1-6jbj.onrender.com
 
 API Docs: 👉 https://ai-quiz-generator-1-6jbj.onrender.com/docs
 
-Screen Recording: 👉 https://drive.google.com/file/d/your-link/view
+Screen Recording: 👉 https://drive.google.com/file/d/1UZ93ZLULxaq0g7mhJVtjY_gmHwu9I9u3/view?usp=sharing
 
 🛠 Tech Stack
 Backend
