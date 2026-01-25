@@ -12,6 +12,7 @@ function GenerateQuiz() {
       setLoading(true);
       setError("");
       const result = await generateQuiz(url);
+      console.log("API RESULT:", result); // 🔍 DEBUG
       setData(result);
     } catch (err) {
       setError(err.message);
@@ -20,16 +21,22 @@ function GenerateQuiz() {
     }
   };
 
-  // 🔒 NORMALIZE QUIZ DATA (CRITICAL FIX)
-  const quiz = (() => {
-    if (!data?.quiz) return [];
-    if (Array.isArray(data.quiz)) return data.quiz;
-    try {
-      return JSON.parse(data.quiz);
-    } catch {
-      return [];
+  // ✅ HARD NORMALIZATION (NO MORE ERRORS)
+  let quizArray = [];
+
+  if (data?.quiz) {
+    if (Array.isArray(data.quiz)) {
+      quizArray = data.quiz;
+    } else if (typeof data.quiz === "string") {
+      try {
+        quizArray = JSON.parse(data.quiz);
+      } catch {
+        quizArray = [];
+      }
+    } else if (typeof data.quiz === "object" && Array.isArray(data.quiz.quiz)) {
+      quizArray = data.quiz.quiz;
     }
-  })();
+  }
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
@@ -38,8 +45,8 @@ function GenerateQuiz() {
       <input
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste Wikipedia URL"
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+        placeholder="Wikipedia URL"
+        style={{ width: "100%", padding: "8px" }}
       />
 
       <button onClick={submit} disabled={loading}>
@@ -48,13 +55,12 @@ function GenerateQuiz() {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* QUIZ DISPLAY */}
-      {quiz.length > 0 && (
+      {quizArray.length > 0 && (
         <div style={{ marginTop: "20px" }}>
           <h3>{data.title}</h3>
           <p>{data.summary}</p>
 
-          {quiz.map((q, i) => (
+          {quizArray.map((q, i) => (
             <div
               key={i}
               style={{
@@ -64,22 +70,14 @@ function GenerateQuiz() {
                 borderRadius: "6px",
               }}
             >
-              <h4>
-                {i + 1}. {q.question}
-              </h4>
-
+              <h4>{i + 1}. {q.question}</h4>
               <ul>
-                {q.options.map((opt, idx) => (
+                {q.options?.map((opt, idx) => (
                   <li key={idx}>{opt}</li>
                 ))}
               </ul>
-
-              <p>
-                <b>Answer:</b> {q.answer}
-              </p>
-              <p>
-                <b>Difficulty:</b> {q.difficulty}
-              </p>
+              <p><b>Answer:</b> {q.answer}</p>
+              <p><b>Difficulty:</b> {q.difficulty}</p>
               <p>{q.explanation}</p>
             </div>
           ))}
